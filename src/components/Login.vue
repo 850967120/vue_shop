@@ -1,10 +1,10 @@
 <template>
     <div class="login_container" >
-      <div v-wechat-title="$route.meta.title"></div>
+      <div v-wechat-title="$route.meta.title" ></div>
      <div class="login_box">
     <!-- 头像区域 -->
          <div class="avatar_box">
-             <img src="../assets/logo1.png" alt="">
+             <img src="../assets/home_logo.png" alt="">
          </div>
     <!-- 登陆表单区域 -->
          <el-form ref="loginRef" :model="loginForm" :rules="login_rules" class="login_from" >
@@ -34,7 +34,7 @@ export default {
     return {
       // 登陆表单的数据绑定对象
       loginForm: {
-        username: 'admin',
+        username: 'useradmin',
         password: '123456'
       },
       // 密码type值设置
@@ -72,19 +72,9 @@ export default {
         // 如果返回的status值 不为200 进行判断 200为true 400为false
         if (res.meta.status !== 200) {
           // 通过message来设置弹窗信息
-          this.$message({
-            message: '登陆失败，用户名或密码错误',
-            center: true,
-            type: 'error'
-
-          })
+          this.$message.error('登陆失败，用户名或密码错误！')
         } else {
-          this.$message({
-            message: '登陆成功',
-            center: true,
-            type: 'success'
-
-          })
+          this.$message.success('登陆成功')
         }
         // 将登陆成功的token保存到sessionStorage ,当浏览器关闭后，保存的token会清除
         sessionStorage.setItem('token', res.data.token)

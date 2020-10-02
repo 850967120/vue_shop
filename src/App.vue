@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <!-- 路由占位符 -->
-    <router-view></router-view>
+    <div v-wechat-title="$route.meta.title"></div>
+    <router-view ></router-view>
   </div>
 </template>
 

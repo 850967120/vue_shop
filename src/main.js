@@ -14,6 +14,11 @@ Vue.use(VueWechatTitle)
 
 // 设置接口默认路径
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+// 设置拦截器
+axios.interceptors.request.use(config => {
+  config.headers.Authorization = sessionStorage.getItem('token')
+  return config
+})
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false
