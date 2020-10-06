@@ -22,7 +22,7 @@
   </el-input>
       </el-col>
       <el-col :span="4">
-          <el-button type="primary" @click="addDialogVisible=true" >添加用户</el-button>
+          <el-button type="primary" @click="addDialogVisible=true"  >添加用户</el-button>
       </el-col>
   </el-row>
   <!-- 用户列表区域 -->
@@ -31,7 +31,7 @@
       <el-table-column label="用户名" prop="username"></el-table-column>
       <el-table-column label="邮箱" prop="email"></el-table-column>
       <el-table-column label="电话" prop="mobile"></el-table-column>
-      <el-table-column label="职位" prop="role_name"></el-table-column>
+      <el-table-column label="角色" prop="role_name"></el-table-column>
       <el-table-column label="状态" prop="mg_state">
         <!--  slot-scope="scope" 来取得作用域插槽:data绑定的数据，scope可以随便替换其他名称，只是定义对象来代表取得的data数据，便于使用 -->
         <!--   @change="userStateChange(scope.row) 获取switch开关的数值 用来保存到数据库中-->
@@ -40,7 +40,7 @@
           </el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="操作" >
+      <el-table-column label="操作"  width="200px">
         <template slot-scope="scope">
           <!-- 修改按钮 -->
           <el-tooltip  effect="dark" content="修改信息" placement="top" :enterable="false">
@@ -52,7 +52,7 @@
           </el-tooltip>
           <!-- 分配按钮 -->
           <el-tooltip  effect="dark" content="分配角色" placement="top" :enterable="false">
-          <el-button type="warning" icon="el-icon-setting" size="medium" :circle="true"></el-button>
+          <el-button type="warning" icon="el-icon-setting" size="medium" :circle="true" @click="setRole(scope.row)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -124,6 +124,31 @@
        <el-button @click="editDialogVisible = false">取 消</el-button>
     </span>
   </el-dialog>
+  <!-- 分配角色的对话框 -->
+  <el-dialog
+  title="分配角色"
+  :visible.sync="setRoledialogVisible"
+  width="50%"
+  @close="setRoledialogClose"
+  :close-on-click-modal="false">
+  <div>
+    <p>当前的用户名:  {{userInfo.username}}</p>
+    <p>当前的角色:  {{userInfo.role_name}}</p>
+    <p>分配新角色:
+      <el-select v-model="selectedRoleId" placeholder="请选择">
+    <el-option
+      v-for="item in rolesList"
+      :key="item.id"
+      :label="item.roleName"
+      :value="item.id">
+    </el-option>
+  </el-select></p>
+  </div>
+  <span slot="footer" class="dialog-footer">
+    <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+        <el-button @click="setRoledialogVisible = false">取 消</el-button>
+  </span>
+</el-dialog>
 </div>
 </template>
 
@@ -209,7 +234,15 @@ export default {
           { required: true, message: '请输入手机号', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
-      }
+      },
+      // 控制分配角色对话框的显示与隐藏
+      setRoledialogVisible: false,
+      // 需要被分配角色的用户信息
+      userInfo: {},
+      // 获取角色的数据列表
+      rolesList: [],
+      // 已经选中的角色id名称
+      selectedRoleId: ''
     }
   },
   created () {
@@ -333,15 +366,40 @@ export default {
         })
       })
       // console.log(confirmResule)
+    },
+    // 展示分配角色的对话框
+    async setRole (userInfo) {
+      this.userInfo = userInfo
+      // 在展示对话框之前获取角色列表
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色列表失败！')
+      }
+      this.rolesList = res.data
+      this.setRoledialogVisible = true
+    },
+    // 监听分配角色对话框的关闭事件
+    setRoledialogClose () {
+      this.selectedRoleId = ''
+    },
+    // 点击按钮 分配角色
+    async saveRoleInfo () {
+      if (!this.selectedRoleId) {
+        return this.$message.error('分配的角色不能为空！')
+      } else {
+        const { data: res } = await this.$http.put(`users/${this.userInfo.id}/role`, { rid: this.selectedRoleId })
+        if (res.meta.status !== 200) {
+          return this.$message.error('更新角色失败！')
+        } else {
+          this.$message.success('更新角色成功！')
+        }
+        this.getUserList()
+        this.setRoledialogVisible = false
+      }
     }
-
   }
 }
 </script>
 
-<style lang="less" >
-.btn-custom-cancel{
-  float :right;
-  margin-left: 10px;
-}
+<style lang="less"  scoped>
 </style>

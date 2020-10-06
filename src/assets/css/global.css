@@ -3,6 +3,7 @@ html,body,#app{
     height: 100%;
     margin: 0;
     padding: 0;
+    min-width: 1366px;
 }
 /* 设置面包屑的整体样式 */
 .el-breadcrumb{
@@ -18,4 +19,8 @@ html,body,#app{
 /* 设置表格的整体样式 */
 .el-table{
     margin: 15px;
+}
+.btn-custom-cancel{
+    float :right;
+    margin-left: 10px;
 }
